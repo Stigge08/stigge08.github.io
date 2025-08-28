@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
-  <header>
+    <header>
     <h1>Fund projections</h1>
 
   </header>
@@ -19,10 +19,20 @@
       <span style="display: inline-block; vertical-align: middle;">&#9776;</span>
     </button>
     <a href="index.html">Home</a>
-    <a href="myfortune_Final.html">My Fortune</a>
-    <button id="resetDefaults">Reset to Default</button>
+    <a href="myfortune_Final.html">Projections</a>
+    <button id="resetDefaults">Reset to SampleValues</button>
     <!-- Add more navigation links here as you create new pages -->
   </nav>
+  <!-- Place this just before </body> -->
+<div id="sidebarOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(30,41,59,0.25); z-index:999;"></div>
+<aside id="fundSidebar" style="position:fixed; top:0; left:-350px; width:350px; height:100vh; background:#fff; box-shadow:2px 0 16px rgba(0,0,0,0.08); z-index:1000; transition:left 0.3s; padding:2rem 1.5rem; display:flex; flex-direction:column;">
+  <button id="closeSidebar" style="align-self:flex-end; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#2d3e50;">&times;</button>
+  <h2 style="margin-top:0;">Paste Fund Data (JSON)</h2>
+  <textarea id="fundJsonInput" rows="8" style="width:100%;font-family:monospace; margin-bottom:1rem;" placeholder='[{"year":2023,"start":3500000,"end":3884487.8}]'></textarea>
+  <button id="applyFundJson" style="margin-bottom:0.5rem;">Apply Data</button>
+  <div id="jsonError" style="color:#ef4444;margin-top:0.5rem;"></div>
+</aside>
+
   <!-- Main content -->
   <div class="container">
     <div class="main">
@@ -182,7 +192,8 @@
       return { avgPercent: parseFloat(avgPercent.toFixed(2)), avgActual: Math.round(avgActual) };
     }
 
-    const { avgPercent, avgActual } = getTotalAverageAnnualGain();
+    let avgPercent, avgActual;
+    ({ avgPercent, avgActual } = getTotalAverageAnnualGain());
 
     document.addEventListener('DOMContentLoaded', () => {
       gainSlider.value = avgPercent;
@@ -376,11 +387,14 @@
 
     // Reset to Default button functionality
     document.getElementById('resetDefaults').addEventListener('click', () => {
-      fundData.forEach((d, idx) => {
-        d.start = defaultFundData[idx].start;
-        d.end = defaultFundData[idx].end;
-      });
+      fundData = [...defaultFundData]; // Replace with a fresh copy
+
       ({ years, fundValues, gains, percents } = calculateDerivedData());
+
+      // Recalculate averages
+      const avg = getTotalAverageAnnualGain();
+      avgPercent = avg.avgPercent;
+      avgActual = avg.avgActual;
 
       // Reset inputs
       gainSlider.value = avgPercent;
@@ -392,12 +406,10 @@
       projectionYearsInput.value = 10;
       taxPercentInput.value = 30;
       deductYearContainer.style.display = 'none';
-      // Set deductStartYearInput back to nextYear dynamically
       deductStartYearInput.value = nextYear;
       deductStartYearInput.min = nextYear;
 
       updateProjection();
-
 });
   document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('fundSidebar');
@@ -434,30 +446,31 @@
         ) {
           fundData = parsed;
           fundData.sort((a, b) => a.year - b.year);
-          ({ years, fundValues, gains, percents } = calculateDerivedData());
+
+          const derived = calculateDerivedData();
+          years = derived.years;
+          fundValues = derived.fundValues;
+          gains = derived.gains;
+          percents = derived.percents;
+
+          const avg = getTotalAverageAnnualGain();
+          avgPercent = avg.avgPercent;
+          avgActual = avg.avgActual;
+
           updateProjection();
           jsonError.textContent = '';
-          // Optionally close sidebar after applying
           document.getElementById('fundSidebar').style.left = '-350px';
           document.getElementById('sidebarOverlay').style.display = 'none';
         } else {
           throw new Error('Invalid format');
         }
       } catch (err) {
-        jsonError.textContent = 'Invalid JSON or format. Example: [{"year":2023,"start":3500000,"end":3884487.8}]';
+        jsonError.textContent = 'Error: ' + err.message;
       }
     });
   });
 </script>
 
-<!-- Place this just before </body> -->
-<div id="sidebarOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(30,41,59,0.25); z-index:999;"></div>
-<aside id="fundSidebar" style="position:fixed; top:0; left:-350px; width:350px; height:100vh; background:#fff; box-shadow:2px 0 16px rgba(0,0,0,0.08); z-index:1000; transition:left 0.3s; padding:2rem 1.5rem; display:flex; flex-direction:column;">
-  <button id="closeSidebar" style="align-self:flex-end; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#2d3e50;">&times;</button>
-  <h2 style="margin-top:0;">Paste Fund Data (JSON)</h2>
-  <textarea id="fundJsonInput" rows="8" style="width:100%;font-family:monospace; margin-bottom:1rem;" placeholder='[{"year":2023,"start":3500000,"end":3884487.8}]'></textarea>
-  <button id="applyFundJson" style="margin-bottom:0.5rem;">Apply Data</button>
-  <div id="jsonError" style="color:#ef4444;margin-top:0.5rem;"></div>
-</aside>
+
 </body>
 </html>
