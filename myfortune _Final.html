@@ -419,6 +419,34 @@
       sidebar.style.left = '-350px';
       overlay.style.display = 'none';
     });
+
+    // Handle paste fund data
+    const applyFundJsonBtn = document.getElementById('applyFundJson');
+    const fundJsonInput = document.getElementById('fundJsonInput');
+    const jsonError = document.getElementById('jsonError');
+
+    applyFundJsonBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(fundJsonInput.value);
+        if (
+          Array.isArray(parsed) &&
+          parsed.every(d => typeof d.year === 'number' && typeof d.start === 'number' && typeof d.end === 'number')
+        ) {
+          fundData = parsed;
+          fundData.sort((a, b) => a.year - b.year);
+          ({ years, fundValues, gains, percents } = calculateDerivedData());
+          updateProjection();
+          jsonError.textContent = '';
+          // Optionally close sidebar after applying
+          document.getElementById('fundSidebar').style.left = '-350px';
+          document.getElementById('sidebarOverlay').style.display = 'none';
+        } else {
+          throw new Error('Invalid format');
+        }
+      } catch (err) {
+        jsonError.textContent = 'Invalid JSON or format. Example: [{"year":2023,"start":3500000,"end":3884487.8}]';
+      }
+    });
   });
 </script>
 
