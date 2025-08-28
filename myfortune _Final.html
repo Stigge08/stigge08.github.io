@@ -4,47 +4,59 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CRM Fund Dashboard</title>
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="myfortune.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
+  <header>
+    <h1>Fund projections</h1>
+
+  </header>
+  <nav style="display: flex; align-items: center; gap: 2rem;">
+    <button id="openSidebar" style="background: none; border: none; cursor: pointer; font-size: 1.7rem; margin-right: 1rem;" title="Paste Fund Data">
+      <span style="display: inline-block; vertical-align: middle;">&#9776;</span>
+    </button>
+    <a href="index.html">Home</a>
+    <a href="myfortune_Final.html">My Fortune</a>
+    <button id="resetDefaults">Reset to Default</button>
+    <!-- Add more navigation links here as you create new pages -->
+  </nav>
   <!-- Main content -->
-  <div class="main">
-    <div class="topbar">
-      <h1>Fund Performance</h1>
-      <button id="resetDefaults">Reset to Default</button>
-    </div>
-    <div class="dashboard">
-      <div class="card" style="grid-column: span 2;">
-        <h2>Fund Value Over Time</h2>
-        <canvas id="fundChart"></canvas>
-        <div id="fundTable" style="margin-top:1.5rem;"></div>
-      </div>
-      <div class="card" style="grid-column: span 2;">
-        <h2>Projection Based on Average Gain</h2>
-        <div id="avgGainInfo" style="margin-bottom: 0.7rem; color: var(--primary-dark); font-weight: 500;"></div>
-        <label for="taxPercentInput">Tax %:</label>
-        <input type="number" id="taxPercentInput" value="30" min="0" max="100" style="width:60px; margin-left:0.5rem; margin-bottom:0.5rem;">
-        <label for="gainSlider" style="display:block;">Projected Annual Gain: <strong><span id="gainValue">10</span>%</strong></label>
-        <input type="range" min="0" max="50" value="10" id="gainSlider"/>
-        <label><input type="checkbox" id="deductBudget"/> Deduct budget from projection</label>
-        <div id="deductPercentContainer" style="display:none; margin-top:0.5rem;">
-          <label for="deductPercentSlider">Deduction Percentage: <strong><span id="deductPercentValue"></span>%</strong></label>
-          <input type="range" min="0" max="100" id="deductPercentSlider"/>
+  <div class="container">
+    <div class="main">
+
+      <div class="dashboard">
+        <div class="card" style="grid-column: span 2;">
+          <h2>Fund Value Over Time</h2>
+          <canvas id="fundChart"></canvas>
+          <div id="fundTable" style="margin-top:1.5rem;"></div>
         </div>
-        <div style="display:flex; gap:1rem; align-items:center; margin-top:0.5rem;">
-          <div id="deductYearContainer" style="display:none;">
-            <label for="deductStartYearInput">Start Deduction Year:</label>
-            <input type="number" id="deductStartYearInput" value="" min="" style="width:80px; margin-left:0.5rem;">
+        <div class="card" style="grid-column: span 2;">
+          <h2>Projection Based on Average Gain</h2>
+          <div id="avgGainInfo" style="margin-bottom: 0.7rem; color: var(--primary-dark); font-weight: 500;"></div>
+          <label for="taxPercentInput">Tax %:</label>
+          <input type="number" id="taxPercentInput" value="30" min="0" max="100" style="width:60px; margin-left:0.5rem; margin-bottom:0.5rem;">
+          <label for="gainSlider" style="display:block;">Projected Annual Gain: <strong><span id="gainValue">10</span>%</strong></label>
+          <input type="range" min="0" max="50" value="10" id="gainSlider"/>
+          <label><input type="checkbox" id="deductBudget"/> Deduct budget from projection</label>
+          <div id="deductPercentContainer" style="display:none; margin-top:0.5rem;">
+            <label for="deductPercentSlider">Deduction Percentage: <strong><span id="deductPercentValue"></span>%</strong></label>
+            <input type="range" min="0" max="100" id="deductPercentSlider"/>
           </div>
-          <div>
-            <label for="projectionYearsInput">Projection Years:</label>
-            <input type="number" id="projectionYearsInput" value="10" min="1" max="50" style="width:80px; margin-left:0.5rem;">
+          <div style="display:flex; gap:1rem; align-items:center; margin-top:0.5rem;">
+            <div id="deductYearContainer" style="display:none;">
+              <label for="deductStartYearInput">Start Deduction Year:</label>
+              <input type="number" id="deductStartYearInput" value="" min="" style="width:80px; margin-left:0.5rem;">
+            </div>
+            <div>
+              <label for="projectionYearsInput">Projection Years:</label>
+              <input type="number" id="projectionYearsInput" value="10" min="1" max="50" style="width:80px; margin-left:0.5rem;">
+            </div>
           </div>
-        </div>
-        <canvas id="projectionChart"></canvas>
-        <div id="projectionTable" style="margin-top:1.5rem;"></div>
+          <canvas id="projectionChart"></canvas>
+          <div id="projectionTable" style="margin-top:1.5rem;"></div>
       </div>
     </div>
   </div>
@@ -56,12 +68,8 @@
       { year: 2025, start: 4518572.58, end: 4513769.85 }
     ];
 
-    // Actual fund data (mutable)
-    const fundData = [
-      { year: 2023, start: 3500000, end: 3884487.8 },
-      { year: 2024, start: 3884487.8, end: 4518572.58 },
-      { year: 2025, start: 4518572.58, end: 4513769.85 }
-    ];
+    // Start with a copy of the default data
+    let fundData = [...defaultFundData];
 
     function calculateDerivedData() {
       const years = fundData.map(d => d.year);
@@ -389,7 +397,39 @@
       deductStartYearInput.min = nextYear;
 
       updateProjection();
+
+});
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('fundSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const openSidebarBtn = document.getElementById('openSidebar');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
+
+    openSidebarBtn.addEventListener('click', () => {
+      sidebar.style.left = '0';
+      overlay.style.display = 'block';
     });
-  </script>
+
+    closeSidebarBtn.addEventListener('click', () => {
+      sidebar.style.left = '-350px';
+      overlay.style.display = 'none';
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.style.left = '-350px';
+      overlay.style.display = 'none';
+    });
+  });
+</script>
+
+<!-- Place this just before </body> -->
+<div id="sidebarOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(30,41,59,0.25); z-index:999;"></div>
+<aside id="fundSidebar" style="position:fixed; top:0; left:-350px; width:350px; height:100vh; background:#fff; box-shadow:2px 0 16px rgba(0,0,0,0.08); z-index:1000; transition:left 0.3s; padding:2rem 1.5rem; display:flex; flex-direction:column;">
+  <button id="closeSidebar" style="align-self:flex-end; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#2d3e50;">&times;</button>
+  <h2 style="margin-top:0;">Paste Fund Data (JSON)</h2>
+  <textarea id="fundJsonInput" rows="8" style="width:100%;font-family:monospace; margin-bottom:1rem;" placeholder='[{"year":2023,"start":3500000,"end":3884487.8}]'></textarea>
+  <button id="applyFundJson" style="margin-bottom:0.5rem;">Apply Data</button>
+  <div id="jsonError" style="color:#ef4444;margin-top:0.5rem;"></div>
+</aside>
 </body>
 </html>
