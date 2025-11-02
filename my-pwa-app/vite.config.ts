@@ -27,5 +27,5 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/my-pwa-app/', // <-- Important for GitHub Pages
+  base: '/', // <-- Important for GitHub Pages
 });
