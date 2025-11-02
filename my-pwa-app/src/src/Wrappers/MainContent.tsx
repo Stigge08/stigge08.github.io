@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import ControlledCarousel from '../Components/Carousel';
 import type { interFaceFundData } from '../Components/Interfaces/interfaces';
 import EditableFundTable from '../Components/EditableFundTable';
@@ -20,13 +20,17 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
   );
 
   return (
-    <Container style={{ paddingTop: '80px' }}>
+    <Container style={{ paddingTop: '80px', overflowX: 'auto' }}>
       {activeComponent === 'Carousel' && <ControlledCarousel />}
       {activeComponent === 'EditableFundTable' && (
-        <>
-          <EditableFundTable fundData={sortedFundData} setfundData={setFundData} />
-          <FundOverview fundData={sortedFundData} />
-        </>
+        <Row>
+          <Col xs={12} md={12} style={{ overflowX: 'auto' }}>
+            <EditableFundTable fundData={sortedFundData} setfundData={setFundData} />
+          </Col>
+          <Col xs={12} md={12} style={{ overflowX: 'auto', marginTop: '1rem' }}>
+            <FundOverview fundData={sortedFundData} />
+          </Col>
+        </Row>
       )}
     </Container>
   );

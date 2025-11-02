@@ -6,6 +6,7 @@
   "homepage": "https://stigge08.github.io/my-pwa-app",
   "scripts": {
     "dev": "vite",
+    "devHost": "npm run dev -- --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

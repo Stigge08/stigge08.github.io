@@ -32,12 +32,6 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSelectComponent }) => {
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
-          <Form className="d-flex">
-            <FormControl type="search" placeholder="Search" className="me-2" aria-label="Search" />
-            <Button variant="secondary" type="submit">
-              Search
-            </Button>
-          </Form>
         </Navbar.Collapse>
       </Container>
     </Navbar>
