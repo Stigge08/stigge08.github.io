@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
 import type { interFaceFundData } from './Interfaces/interfaces';
 
@@ -15,6 +15,45 @@ interface FundTracking {
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 0.3 }) => {
   const [taxRateInput, setTaxRateInput] = useState(taxRate);
+  const [sourceCurrency, setSourceCurrency] = useState('SEK');
+  const [targetCurrency, setTargetCurrency] = useState('SEK');
+  const [exchangeRate, setExchangeRate] = useState(1);
+
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        if (sourceCurrency === targetCurrency) {
+          setExchangeRate(1);
+          console.log(
+            `[Currency] Source and target currency are the same (${sourceCurrency}). Exchange rate set to 1.`,
+          );
+          return;
+        }
+        const url = `https://api.frankfurter.app/latest?from=${sourceCurrency}&to=${targetCurrency}`;
+        console.log(`[Currency] Fetching exchange rate from: ${url}`);
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log('[Currency] Fetched data:', data);
+
+        if (data && data.rates && typeof data.rates[targetCurrency] === 'number') {
+          setExchangeRate(data.rates[targetCurrency]);
+          console.log(
+            `[Currency] Exchange rate ${sourceCurrency} -> ${targetCurrency}:`,
+            data.rates[targetCurrency],
+          );
+        } else {
+          setExchangeRate(1);
+          console.warn(
+            `[Currency] Could not parse exchange rate for ${sourceCurrency} -> ${targetCurrency}. Fallback to 1.`,
+          );
+        }
+      } catch (error) {
+        setExchangeRate(1);
+        console.error('[Currency] Failed to fetch exchange rate. Fallback to 1.', error);
+      }
+    };
+    fetchExchangeRate();
+  }, [sourceCurrency, targetCurrency]);
 
   // Sort transactions by date
   const sortedData = [...fundData].sort(
@@ -91,16 +130,47 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
           onChange={(e) => setTaxRateInput(parseFloat(e.target.value) || 0)}
         />
       </div>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="sourceCurrencySelect" style={{ marginRight: '0.5rem' }}>
+          Source Currency:
+        </label>
+        <select
+          id="sourceCurrencySelect"
+          value={sourceCurrency}
+          onChange={(e) => setSourceCurrency(e.target.value)}
+          style={{ marginRight: '1rem' }}
+        >
+          <option value="SEK">SEK</option>
+          <option value="EUR">EUR</option>
+        </select>
+
+        <label htmlFor="targetCurrencySelect" style={{ marginRight: '0.5rem' }}>
+          Target Currency:
+        </label>
+        <select
+          id="targetCurrencySelect"
+          value={targetCurrency}
+          onChange={(e) => setTargetCurrency(e.target.value)}
+          style={{ marginRight: '1rem' }}
+        >
+          <option value="SEK">SEK</option>
+          <option value="EUR">EUR</option>
+        </select>
+
+        <span style={{ fontWeight: 'bold', color: exchangeRate === 1 ? 'gray' : 'black' }}>
+          {sourceCurrency} → {targetCurrency}: {exchangeRate.toFixed(4)}
+        </span>
+      </div>
       <Table striped bordered>
         <thead>
           <tr>
             <th>Fund Name</th>
             <th>Remaining Units</th>
-            <th>Total Invested (sek)</th>
-            <th>Realized Gain (sek)</th>
-            <th>Taxes (sek)</th>
-            <th>Current Holding Value (sek)</th>
-            <th>Unrealized Gain (sek)</th>
+            <th>Total Invested ({targetCurrency})</th>
+            <th>Realized Gain ({targetCurrency})</th>
+            <th>Taxes ({targetCurrency})</th>
+            <th>Current Holding Value ({targetCurrency})</th>
+            <th>Unrealized Gain ({targetCurrency})</th>
           </tr>
         </thead>
         <tbody>
@@ -114,31 +184,31 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
                 })}
               </td>
               <td>
-                {f.totalInvested.toLocaleString(undefined, {
+                {(f.totalInvested * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </td>
               <td>
-                {f.realizedGain.toLocaleString(undefined, {
+                {(f.realizedGain * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </td>
               <td>
-                {f.taxes.toLocaleString(undefined, {
+                {(f.taxes * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </td>
               <td>
-                {f.currentHoldingValue.toLocaleString(undefined, {
+                {(f.currentHoldingValue * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </td>
               <td>
-                {f.unrealizedGain.toLocaleString(undefined, {
+                {(f.unrealizedGain * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -152,7 +222,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
             <td></td>
             <td>
               <strong>
-                {totalInvested.toLocaleString(undefined, {
+                {(totalInvested * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -160,7 +230,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
             </td>
             <td>
               <strong>
-                {totalRealized.toLocaleString(undefined, {
+                {(totalRealized * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -168,7 +238,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
             </td>
             <td>
               <strong>
-                {totalTaxes.toLocaleString(undefined, {
+                {(totalTaxes * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -176,7 +246,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
             </td>
             <td>
               <strong>
-                {totalCurrentHoldingValue.toLocaleString(undefined, {
+                {(totalCurrentHoldingValue * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -184,7 +254,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
             </td>
             <td>
               <strong>
-                {totalUnrealizedGain.toLocaleString(undefined, {
+                {(totalUnrealizedGain * exchangeRate).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
