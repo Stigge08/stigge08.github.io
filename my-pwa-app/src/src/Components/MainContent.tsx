@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
+import EditableTable from './EditableTable';
 
 const MainContent: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const MainContent: React.FC = () => {
             All you get is this text and a responsive navbar.
           </p>
         </div>
+        <EditableTable />
       </Container>
     </>
   );
