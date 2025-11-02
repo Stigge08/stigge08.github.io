@@ -90,10 +90,10 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
           <tr>
             <th>Fund Name</th>
             <th>Remaining Units</th>
-            <th>Total Invested (€)</th>
-            <th>Realized Gain (€)</th>
-            <th>Taxes (€)</th>
-            <th>Current Holding Value (€)</th>
+            <th>Total Invested (sek)</th>
+            <th>Realized Gain (sek)</th>
+            <th>Taxes (sek)</th>
+            <th>Current Holding Value (sek)</th>
           </tr>
         </thead>
         <tbody>

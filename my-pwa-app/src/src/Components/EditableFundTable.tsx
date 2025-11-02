@@ -89,7 +89,16 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
                       <option value="buy">buy</option>
                       <option value="sell">sell</option>
                     </Form.Select>
-                  ) : col === 'amount' || col === 'quantity' || col === 'unitPrice' ? (
+                  ) : col === 'amount' ? (
+                    <Form.Control
+                      type="text"
+                      value={(row.quantity * row.unitPrice).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      readOnly
+                    />
+                  ) : col === 'quantity' || col === 'unitPrice' ? (
                     <Form.Control
                       type="text"
                       value={(row[col as keyof interFaceFundData] as number).toLocaleString()}

@@ -8,7 +8,7 @@ export interface RowData {
 export interface interFaceFundData {
   date: string; // transaction date
   type: 'holding' | 'buy' | 'sell';
-  amount: number; // total money spent or received
+  amount?: number; // total money spent or received
   quantity: number; // number of units bought/sold/held
   unitPrice: number; // price per unit
   note?: string; // optional description
