@@ -10,7 +10,7 @@ export const FundData: interFaceFundData[] = [
     fundName: 'Nordea Optima',
   },
   {
-    date: '2023-01-01',
+    date: '2023-03-22',
     type: 'buy',
     amount: 700000,
     quantity: 426.22,

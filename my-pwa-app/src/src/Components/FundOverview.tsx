@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
-import type { FundData } from './Interfaces/interfaces';
+import type { interFaceFundData } from './Interfaces/interfaces';
 
 export type FundOverviewItem = {
   fundName: string;
@@ -9,23 +9,31 @@ export type FundOverviewItem = {
 };
 
 interface FundOverviewProps {
-  fundData: FundData[];
+  fundData: interFaceFundData[];
 }
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
   // calculate overview
-  const overviewMap: Record<string, { quantity: number; value: number }> = {};
+  const overviewMap: Record<string, { quantity: number; totalCost: number; value: number }> = {};
 
   fundData.forEach((t) => {
     const name = t.fundName;
-    if (!overviewMap[name]) overviewMap[name] = { quantity: 0, value: 0 };
+    if (!overviewMap[name]) overviewMap[name] = { quantity: 0, totalCost: 0, value: 0 };
 
     if (t.type === 'holding' || t.type === 'buy') {
       overviewMap[name].quantity += t.quantity;
+      overviewMap[name].totalCost += t.quantity * t.unitPrice;
       overviewMap[name].value += t.quantity * t.unitPrice;
     } else if (t.type === 'sell') {
+      // Calculate average unit price before sell
+      const avgUnitPrice =
+        overviewMap[name].quantity > 0 ? overviewMap[name].value / overviewMap[name].quantity : 0;
+      // Subtract quantity sold
       overviewMap[name].quantity -= t.quantity;
-      overviewMap[name].value -= t.quantity * t.unitPrice;
+      if (overviewMap[name].quantity < 0) overviewMap[name].quantity = 0;
+      // Subtract value based on average unit price * quantity sold
+      overviewMap[name].value -= t.quantity * avgUnitPrice;
+      if (overviewMap[name].value < 0) overviewMap[name].value = 0;
     }
   });
 
