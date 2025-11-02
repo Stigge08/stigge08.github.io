@@ -16,17 +16,11 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSelectComponent }) => {
           <Nav className="me-auto">
             <Nav.Link onClick={() => onSelectComponent('Carousel')}>Pics</Nav.Link>
             <Nav.Link onClick={() => onSelectComponent('table')}>Table</Nav.Link>
-            <Nav.Link disabled>Disabled</Nav.Link>
             <NavDropdown title="Dropdown" id="nav-dropdown">
               <NavDropdown.Item onClick={() => onSelectComponent('Carousel')}>
-                Action
+                Carousel
               </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => onSelectComponent('table')}>
-                Another action
-              </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => onSelectComponent('Carousel')}>
-                Something else
-              </NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onSelectComponent('table')}>table</NavDropdown.Item>
             </NavDropdown>
           </Nav>
           <Form className="d-flex">
