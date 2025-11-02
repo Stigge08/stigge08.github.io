@@ -133,6 +133,53 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
     { key: 'unrealizedGain', label: `Unrealized Gain (${targetCurrency})`, isNumeric: true },
   ];
 
+  // Sorting state for table columns
+  type SortDirection = 'asc' | 'desc';
+  type SortConfig = { key: string; direction: SortDirection } | null;
+  // Set initial sort to 'unrealizedGain' descending
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: 'unrealizedGain',
+    direction: 'desc',
+  });
+
+  // Sorting handler
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => {
+      if (prev && prev.key === key) {
+        // Toggle direction
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      } else {
+        // Default to ascending
+        return { key, direction: 'asc' };
+      }
+    });
+  };
+
+  // Sorted fund overview (excluding the total row)
+  const sortedFundOverview = React.useMemo(() => {
+    if (!sortConfig) return [...fundOverview];
+    const { key, direction } = sortConfig;
+    return [...fundOverview].sort((a, b) => {
+      const col = columns.find((c) => c.key === key);
+      if (!col) return 0;
+      let aValue = a[key as keyof typeof a];
+      let bValue = b[key as keyof typeof b];
+      // For fundName (string), else numbers
+      if (col.isNumeric) {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+        if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+        return 0;
+      } else {
+        // String comparison
+        return direction === 'asc'
+          ? String(aValue).localeCompare(String(bValue))
+          : String(bValue).localeCompare(String(aValue));
+      }
+    });
+  }, [fundOverview, sortConfig, columns]);
+
   return (
     <div style={{ margin: '2rem 0' }}>
       <h3>Fund Overview (Tax Relevant)</h3>
@@ -185,12 +232,23 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
+              <th
+                key={col.key}
+                style={{ cursor: 'pointer', userSelect: 'none' }}
+                onClick={() => handleSort(col.key)}
+              >
+                {col.label}
+                {sortConfig && sortConfig.key === col.key && (
+                  <span style={{ marginLeft: 4 }}>
+                    {sortConfig.direction === 'asc' ? '▲' : '▼'}
+                  </span>
+                )}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {fundOverview.map((f) => (
+          {sortedFundOverview.map((f) => (
             <tr key={f.fundName}>
               {columns.map((col) => {
                 if (col.key === 'fundName') {
