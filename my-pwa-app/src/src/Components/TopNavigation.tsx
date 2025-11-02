@@ -16,6 +16,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSelectComponent }) => {
           <Nav className="me-auto">
             <Nav.Link onClick={() => onSelectComponent('Carousel')}>Pics</Nav.Link>
             <Nav.Link onClick={() => onSelectComponent('table')}>Table</Nav.Link>
+            <Nav.Link onClick={() => onSelectComponent('EditableFundTable')}>FundTable</Nav.Link>
             <NavDropdown title="Dropdown" id="nav-dropdown">
               <NavDropdown.Item onClick={() => onSelectComponent('Carousel')}>
                 Carousel
