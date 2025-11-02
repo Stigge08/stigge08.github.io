@@ -5,6 +5,7 @@ import ControlledCarousel from '../Components/Carousel';
 import EditableTable from '../Components/EditableTable';
 import type { FundData, RowData } from '../Components/Interfaces/interfaces';
 import EditableFundTable from '../Components/EditableFundTable';
+import { FundOverview } from '../Components/FundOverview';
 
 export type ComponentKey = 'Carousel' | 'table' | 'EditableFundTable';
 
@@ -40,7 +41,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
       date: '2025-08-22',
       type: 'sell',
       amount: 500000,
-      quantity: 33.16,
+      quantity: 330.16,
       unitPrice: 1514.4,
       fundName: 'Nordea Optima',
     },
@@ -52,6 +53,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
       unitPrice: 9.4,
       fundName: 'Nordea Global',
     },
+
     {
       date: '2025-10-31',
       type: 'sell',
@@ -69,13 +71,35 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
       fundName: 'Nordea Global Enhanced Small Cap Fund BP',
     },
   ]);
+  const sortedFundData = [...fundData].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
+
+  // Calculate currentHoldingBefore for each transaction
+  const fundDataWithHoldings = sortedFundData.map((transaction, index, arr) => {
+    let currentHoldingBefore = 0;
+    for (let i = 0; i < index; i++) {
+      const prevTransaction = arr[i];
+      if (prevTransaction.fundName === transaction.fundName) {
+        if (prevTransaction.type === 'buy' || prevTransaction.type === 'holding') {
+          currentHoldingBefore += prevTransaction.quantity;
+        } else if (prevTransaction.type === 'sell') {
+          currentHoldingBefore -= prevTransaction.quantity;
+        }
+      }
+    }
+    return { ...transaction, currentHoldingBefore };
+  });
 
   return (
     <Container style={{ paddingTop: '80px' }}>
       {activeComponent === 'Carousel' && <ControlledCarousel />}
       {activeComponent === 'table' && <EditableTable rows={rows} setRows={setRows} />}
       {activeComponent === 'EditableFundTable' && (
-        <EditableFundTable fundData={fundData} setfundData={setFundData} />
+        <>
+          <EditableFundTable fundData={fundDataWithHoldings} setfundData={setFundData} />
+          <FundOverview fundData={fundDataWithHoldings} />
+        </>
       )}
     </Container>
   );
