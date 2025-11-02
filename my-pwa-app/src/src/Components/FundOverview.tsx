@@ -56,11 +56,13 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
     remainingUnits: f.quantity,
     totalInvested: f.totalCost,
     realizedGain: f.realizedGain,
+    taxes: f.realizedGain * 0.3,
     currentHoldingValue: f.quantity * (lastUnitPriceMap[name] || 0),
   }));
 
   const totalInvested = fundOverview.reduce((sum, f) => sum + f.totalInvested, 0);
   const totalRealized = fundOverview.reduce((sum, f) => sum + f.realizedGain, 0);
+  const totalTaxes = fundOverview.reduce((sum, f) => sum + f.taxes, 0);
   const totalCurrentHoldingValue = fundOverview.reduce((sum, f) => sum + f.currentHoldingValue, 0);
 
   return (
@@ -73,6 +75,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             <th>Remaining Units</th>
             <th>Total Invested (€)</th>
             <th>Realized Gain (€)</th>
+            <th>Taxes (€)</th>
             <th>Current Holding Value (€)</th>
           </tr>
         </thead>
@@ -80,7 +83,12 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
           {fundOverview.map((f) => (
             <tr key={f.fundName}>
               <td>{f.fundName}</td>
-              <td>{f.remainingUnits.toFixed(2).toLocaleString()}</td>
+              <td>
+                {f.remainingUnits.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </td>
               <td>
                 {f.totalInvested.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
@@ -89,6 +97,12 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
               </td>
               <td>
                 {f.realizedGain.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </td>
+              <td>
+                {f.taxes.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -117,6 +131,14 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             <td>
               <strong>
                 {totalRealized.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
+            </td>
+            <td>
+              <strong>
+                {totalTaxes.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}

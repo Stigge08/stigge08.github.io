@@ -83,11 +83,17 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
                       onChange={(e) => handleChange(index, 'note', e.target.value)}
                     />
                   ) : col === 'fundName' ? (
-                    <Form.Control
-                      type="text"
+                    <Form.Select
                       value={row.fundName || ''}
                       onChange={(e) => handleChange(index, 'fundName', e.target.value)}
-                    />
+                    >
+                      <option value="">Select Fund</option>
+                      <option value="Nordea Optima">Nordea Optima</option>
+                      <option value="Nordea Global Enhanced Small Cap Fund BP">
+                        Nordea Global Enhanced Small Cap Fund BP
+                      </option>
+                      <option value="Nordea Global">Nordea Global</option>
+                    </Form.Select>
                   ) : (
                     row[col as keyof interFaceFundData]
                   )}
