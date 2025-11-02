@@ -7,10 +7,9 @@ interface FundOverviewProps {
 }
 
 interface FundTracking {
-  quantity: number;
-  totalCost: number; // total cost of remaining units
-  realizedGain: number;
-  currentMarketValue: number; // from holding type
+  quantity: number; // remaining units
+  totalCost: number; // total invested for remaining units
+  realizedGain: number; // accumulated gain from sells
 }
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
@@ -23,8 +22,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
 
   sortedData.forEach((t) => {
     const name = t.fundName;
-    if (!fundMap[name])
-      fundMap[name] = { quantity: 0, totalCost: 0, realizedGain: 0, currentMarketValue: 0 };
+    if (!fundMap[name]) fundMap[name] = { quantity: 0, totalCost: 0, realizedGain: 0 };
 
     const fund = fundMap[name];
 
@@ -39,50 +37,64 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
       const avgCost = fund.totalCost / fund.quantity; // average cost per unit
       const costOfSoldUnits = avgCost * t.quantity;
 
-      fund.realizedGain += t.quantity * t.unitPrice - costOfSoldUnits; // profit = sale price - cost
+      fund.realizedGain += t.quantity * t.unitPrice - costOfSoldUnits; // realized gain
       fund.quantity -= t.quantity;
       fund.totalCost -= costOfSoldUnits;
-    } else if (t.type === 'holding') {
-      // Treat as snapshot for current market value only
-      fund.currentMarketValue = t.quantity * t.unitPrice;
+    }
+    // 'holding' transactions are ignored for tax purposes
+  });
+
+  const lastUnitPriceMap: Record<string, number> = {};
+  sortedData.forEach((t) => {
+    if (t.type === 'buy' || t.type === 'sell' || t.type === 'holding') {
+      lastUnitPriceMap[t.fundName] = t.unitPrice;
     }
   });
 
   const fundOverview = Object.entries(fundMap).map(([name, f]) => ({
     fundName: name,
-    totalUnits: f.quantity,
-    averageCost: f.quantity > 0 ? f.totalCost / f.quantity : 0,
-    currentValue: f.currentMarketValue || f.quantity * (f.totalCost / (f.quantity || 1)),
+    remainingUnits: f.quantity,
+    totalInvested: f.totalCost,
     realizedGain: f.realizedGain,
+    currentHoldingValue: f.quantity * (lastUnitPriceMap[name] || 0),
   }));
 
-  const totalValue = fundOverview.reduce((sum, f) => sum + f.currentValue, 0);
+  const totalInvested = fundOverview.reduce((sum, f) => sum + f.totalInvested, 0);
+  const totalRealized = fundOverview.reduce((sum, f) => sum + f.realizedGain, 0);
+  const totalCurrentHoldingValue = fundOverview.reduce((sum, f) => sum + f.currentHoldingValue, 0);
 
   return (
     <div style={{ margin: '2rem 0' }}>
-      <h3>Fund Overview</h3>
+      <h3>Fund Overview (Tax Relevant)</h3>
       <Table striped bordered>
         <thead>
           <tr>
             <th>Fund Name</th>
-            <th>Total Units</th>
-            <th>Current Value (€)</th>
+            <th>Remaining Units</th>
+            <th>Total Invested (€)</th>
             <th>Realized Gain (€)</th>
+            <th>Current Holding Value (€)</th>
           </tr>
         </thead>
         <tbody>
           {fundOverview.map((f) => (
             <tr key={f.fundName}>
               <td>{f.fundName}</td>
-              <td>{f.totalUnits.toFixed(2).toLocaleString()}</td>
+              <td>{f.remainingUnits.toFixed(2).toLocaleString()}</td>
               <td>
-                {f.currentValue.toLocaleString(undefined, {
+                {f.totalInvested.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </td>
               <td>
                 {f.realizedGain.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </td>
+              <td>
+                {f.currentHoldingValue.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -96,13 +108,28 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             <td></td>
             <td>
               <strong>
-                {totalValue.toLocaleString(undefined, {
+                {totalInvested.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </strong>
             </td>
-            <td></td>
+            <td>
+              <strong>
+                {totalRealized.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
+            </td>
+            <td>
+              <strong>
+                {totalCurrentHoldingValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
+            </td>
           </tr>
         </tbody>
       </Table>
