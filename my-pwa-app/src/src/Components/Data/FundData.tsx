@@ -25,29 +25,4 @@ export const FundData: interFaceFundData[] = [
     unitPrice: 1514.4,
     fundName: 'Nordea Optima',
   },
-  {
-    date: '2025-08-22',
-    type: 'buy',
-    amount: 500000,
-    quantity: 52956.57,
-    unitPrice: 9.4,
-    fundName: 'Nordea Global',
-  },
-
-  {
-    date: '2025-10-31',
-    type: 'sell',
-    amount: 600000,
-    quantity: 381.18,
-    unitPrice: 1574.05,
-    fundName: 'Nordea Optima',
-  },
-  {
-    date: '2025-10-30',
-    type: 'sell',
-    amount: 931780.8,
-    quantity: 426.22,
-    unitPrice: 2186.17,
-    fundName: 'Nordea Global Enhanced Small Cap Fund BP',
-  },
 ];

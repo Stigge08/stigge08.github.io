@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import type { interFaceFundData } from './Interfaces/interfaces';
 
 interface FundOverviewProps {
   fundData: interFaceFundData[];
+  taxRate?: number;
 }
 
 interface FundTracking {
@@ -12,7 +13,9 @@ interface FundTracking {
   realizedGain: number; // accumulated gain from sells
 }
 
-export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
+export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 0.3 }) => {
+  const [taxRateInput, setTaxRateInput] = useState(taxRate);
+
   // Sort transactions by date
   const sortedData = [...fundData].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -56,7 +59,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
     remainingUnits: f.quantity,
     totalInvested: f.totalCost,
     realizedGain: f.realizedGain,
-    taxes: f.realizedGain * 0.3,
+    taxes: f.realizedGain * taxRateInput,
     currentHoldingValue: f.quantity * (lastUnitPriceMap[name] || 0),
   }));
 
@@ -68,6 +71,20 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
   return (
     <div style={{ margin: '2rem 0' }}>
       <h3>Fund Overview (Tax Relevant)</h3>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="taxRateInput" style={{ marginRight: '0.5rem' }}>
+          Tax Rate:
+        </label>
+        <input
+          id="taxRateInput"
+          type="number"
+          step="0.01"
+          min="0"
+          max="1"
+          value={taxRateInput}
+          onChange={(e) => setTaxRateInput(parseFloat(e.target.value) || 0)}
+        />
+      </div>
       <Table striped bordered>
         <thead>
           <tr>

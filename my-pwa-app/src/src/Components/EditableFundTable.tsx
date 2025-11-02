@@ -31,10 +31,35 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
     setfundData((prevfundData) => prevfundData.filter((_, i) => i !== index));
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result;
+        if (typeof text === 'string') {
+          const jsonData = JSON.parse(text) as interFaceFundData[];
+          if (Array.isArray(jsonData)) {
+            setfundData(jsonData);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing JSON file:', error);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const columns = Object.keys(fundData[0] || {});
 
   return (
     <>
+      <Form.Group controlId="jsonFileUpload" className="mb-3">
+        <Form.Label>Import JSON File</Form.Label>
+        <Form.Control type="file" accept=".json,application/json" onChange={handleFileUpload} />
+      </Form.Group>
       <Table striped bordered hover>
         <thead>
           <tr>
