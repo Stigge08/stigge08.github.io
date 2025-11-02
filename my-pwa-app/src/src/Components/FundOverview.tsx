@@ -113,6 +113,26 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
   const totalCurrentHoldingValue = fundOverview.reduce((sum, f) => sum + f.currentHoldingValue, 0);
   const totalUnrealizedGain = fundOverview.reduce((sum, f) => sum + f.unrealizedGain, 0);
 
+  const formatValue = (value: number) =>
+    (value * exchangeRate).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  const columns = [
+    { key: 'fundName', label: 'Fund Name', isNumeric: false },
+    { key: 'remainingUnits', label: 'Remaining Units', isNumeric: true },
+    { key: 'totalInvested', label: `Total Invested (${targetCurrency})`, isNumeric: true },
+    { key: 'realizedGain', label: `Realized Gain (${targetCurrency})`, isNumeric: true },
+    { key: 'taxes', label: `Taxes (${targetCurrency})`, isNumeric: true },
+    {
+      key: 'currentHoldingValue',
+      label: `Current Holding Value (${targetCurrency})`,
+      isNumeric: true,
+    },
+    { key: 'unrealizedGain', label: `Unrealized Gain (${targetCurrency})`, isNumeric: true },
+  ];
+
   return (
     <div style={{ margin: '2rem 0' }}>
       <h3>Fund Overview (Tax Relevant)</h3>
@@ -164,102 +184,70 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
       <Table striped bordered>
         <thead>
           <tr>
-            <th>Fund Name</th>
-            <th>Remaining Units</th>
-            <th>Total Invested ({targetCurrency})</th>
-            <th>Realized Gain ({targetCurrency})</th>
-            <th>Taxes ({targetCurrency})</th>
-            <th>Current Holding Value ({targetCurrency})</th>
-            <th>Unrealized Gain ({targetCurrency})</th>
+            {columns.map((col) => (
+              <th key={col.key}>{col.label}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {fundOverview.map((f) => (
             <tr key={f.fundName}>
-              <td>{f.fundName}</td>
-              <td>
-                {f.remainingUnits.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
-              <td>
-                {(f.totalInvested * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
-              <td>
-                {(f.realizedGain * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
-              <td>
-                {(f.taxes * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
-              <td>
-                {(f.currentHoldingValue * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
-              <td>
-                {(f.unrealizedGain * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </td>
+              {columns.map((col) => {
+                if (col.key === 'fundName') {
+                  return <td key={col.key}>{f.fundName}</td>;
+                } else if (col.key === 'remainingUnits') {
+                  return (
+                    <td key={col.key}>
+                      {f.remainingUnits.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                  );
+                } else {
+                  return (
+                    <td key={col.key}>{formatValue(f[col.key as keyof typeof f] as number)}</td>
+                  );
+                }
+              })}
             </tr>
           ))}
           <tr>
-            <td>
-              <strong>Total</strong>
-            </td>
-            <td></td>
-            <td>
-              <strong>
-                {(totalInvested * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </strong>
-            </td>
-            <td>
-              <strong>
-                {(totalRealized * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </strong>
-            </td>
-            <td>
-              <strong>
-                {(totalTaxes * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </strong>
-            </td>
-            <td>
-              <strong>
-                {(totalCurrentHoldingValue * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </strong>
-            </td>
-            <td>
-              <strong>
-                {(totalUnrealizedGain * exchangeRate).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </strong>
-            </td>
+            {columns.map((col) => {
+              if (col.key === 'fundName') {
+                return (
+                  <td key={col.key}>
+                    <strong>Total</strong>
+                  </td>
+                );
+              } else if (col.key === 'remainingUnits') {
+                return <td key={col.key}></td>;
+              } else {
+                let totalValue = 0;
+                switch (col.key) {
+                  case 'totalInvested':
+                    totalValue = totalInvested;
+                    break;
+                  case 'realizedGain':
+                    totalValue = totalRealized;
+                    break;
+                  case 'taxes':
+                    totalValue = totalTaxes;
+                    break;
+                  case 'currentHoldingValue':
+                    totalValue = totalCurrentHoldingValue;
+                    break;
+                  case 'unrealizedGain':
+                    totalValue = totalUnrealizedGain;
+                    break;
+                }
+                return (
+                  <td key={col.key}>
+                    <strong>{formatValue(totalValue)}</strong>
+                  </td>
+                );
+              }
+            })}
           </tr>
         </tbody>
       </Table>
