@@ -1,10 +1,3 @@
-export interface RowData {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-}
-
 export interface interFaceFundData {
   date: string; // transaction date
   type: 'holding' | 'buy' | 'sell';
