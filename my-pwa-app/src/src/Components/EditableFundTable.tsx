@@ -1,21 +1,21 @@
 import React from 'react';
 import { Table, Form, Button } from 'react-bootstrap';
-import type { FundData } from './Interfaces/interfaces';
+import type { interFaceFundData } from './Interfaces/interfaces';
 
 interface EditableFundTableProps {
-  fundData: FundData[];
-  setfundData: React.Dispatch<React.SetStateAction<FundData[]>>;
+  fundData: interFaceFundData[];
+  setfundData: React.Dispatch<React.SetStateAction<interFaceFundData[]>>;
 }
 
 const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfundData }) => {
-  const handleChange = (index: number, field: keyof FundData, value: string | number) => {
+  const handleChange = (index: number, field: keyof interFaceFundData, value: string | number) => {
     setfundData((prevfundData: any[]) =>
       prevfundData.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
     );
   };
 
   const addRow = () => {
-    const newRow: FundData = {
+    const newRow: interFaceFundData = {
       date: new Date().toISOString().split('T')[0], // current date
       type: 'holding',
       amount: 0,
@@ -25,6 +25,10 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
       fundName: '',
     };
     setfundData([...fundData, newRow]);
+  };
+
+  const removeRow = (index: number) => {
+    setfundData((prevfundData) => prevfundData.filter((_, i) => i !== index));
   };
 
   const columns = Object.keys(fundData[0] || {});
@@ -37,6 +41,7 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
             {columns.map((col) => (
               <th key={col}>{col.charAt(0).toUpperCase() + col.slice(1)}</th>
             ))}
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>
@@ -62,9 +67,13 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
                   ) : col === 'amount' || col === 'quantity' || col === 'unitPrice' ? (
                     <Form.Control
                       type="number"
-                      value={row[col as keyof FundData] as number}
+                      value={row[col as keyof interFaceFundData] as number}
                       onChange={(e) =>
-                        handleChange(index, col as keyof FundData, parseFloat(e.target.value))
+                        handleChange(
+                          index,
+                          col as keyof interFaceFundData,
+                          parseFloat(e.target.value),
+                        )
                       }
                     />
                   ) : col === 'note' ? (
@@ -80,10 +89,15 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
                       onChange={(e) => handleChange(index, 'fundName', e.target.value)}
                     />
                   ) : (
-                    row[col as keyof FundData]
+                    row[col as keyof interFaceFundData]
                   )}
                 </td>
               ))}
+              <td>
+                <Button variant="danger" onClick={() => removeRow(index)}>
+                  Remove
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>

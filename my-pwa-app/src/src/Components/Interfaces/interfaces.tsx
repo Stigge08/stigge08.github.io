@@ -5,14 +5,14 @@ export interface RowData {
   username: string;
 }
 
-export interface FundData {
+export interface interFaceFundData {
   date: string; // transaction date
   type: 'holding' | 'buy' | 'sell';
   amount: number; // total money spent or received
   quantity: number; // number of units bought/sold/held
   unitPrice: number; // price per unit
   note?: string; // optional description
-  fundName: string;
+  fundName: 'Nordea Global Enhanced Small Cap Fund BP' | 'Nordea Optima' | 'Nordea Global' | '';
 }
 
 // DataPictures.tsx
