@@ -10,6 +10,7 @@ interface FundTracking {
   quantity: number;
   totalCost: number; // total cost of remaining units
   realizedGain: number;
+  currentMarketValue: number; // from holding type
 }
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
@@ -22,11 +23,12 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
 
   sortedData.forEach((t) => {
     const name = t.fundName;
-    if (!fundMap[name]) fundMap[name] = { quantity: 0, totalCost: 0, realizedGain: 0 };
+    if (!fundMap[name])
+      fundMap[name] = { quantity: 0, totalCost: 0, realizedGain: 0, currentMarketValue: 0 };
 
     const fund = fundMap[name];
 
-    if (t.type === 'buy' || t.type === 'holding') {
+    if (t.type === 'buy') {
       fund.quantity += t.quantity;
       fund.totalCost += t.quantity * t.unitPrice;
     } else if (t.type === 'sell') {
@@ -40,13 +42,17 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
       fund.realizedGain += t.quantity * t.unitPrice - costOfSoldUnits; // profit = sale price - cost
       fund.quantity -= t.quantity;
       fund.totalCost -= costOfSoldUnits;
+    } else if (t.type === 'holding') {
+      // Treat as snapshot for current market value only
+      fund.currentMarketValue = t.quantity * t.unitPrice;
     }
   });
 
   const fundOverview = Object.entries(fundMap).map(([name, f]) => ({
     fundName: name,
     totalUnits: f.quantity,
-    currentValue: f.totalCost,
+    averageCost: f.quantity > 0 ? f.totalCost / f.quantity : 0,
+    currentValue: f.currentMarketValue || f.quantity * (f.totalCost / (f.quantity || 1)),
     realizedGain: f.realizedGain,
   }));
 
@@ -89,14 +95,12 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             </td>
             <td></td>
             <td>
-              <td>
-                <strong>
-                  {totalValue.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </strong>
-              </td>
+              <strong>
+                {totalValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </strong>
             </td>
             <td></td>
           </tr>
