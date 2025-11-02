@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Navbar, Nav, NavDropdown, Form, FormControl, Button } from 'react-bootstrap';
 
-const MainNavigation: React.FC = () => {
+const TopNavigation: React.FC = () => {
   return (
     <>
       {/* Navbar */}
@@ -27,25 +27,15 @@ const MainNavigation: React.FC = () => {
                 className="me-2"
                 aria-label="Search"
               />
-              <Button variant="secondary" type="submit">Search</Button>
+              <Button variant="secondary" type="submit">
+                Search
+              </Button>
             </Form>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
-      {/* Main content */}
-      <Container style={{ paddingTop: '80px' }}>
-        <div className="starter-template text-center mt-5">
-          <h1>PlaceHolder</h1>
-          <p className="lead">
-            Use this component as a way to quickly start any new React project.
-            <br />
-            All you get is this text and a responsive navbar.
-          </p>
-        </div>
-      </Container>
     </>
   );
 };
 
-export default MainNavigation;
+export default TopNavigation;

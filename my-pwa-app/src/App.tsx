@@ -1,7 +1,10 @@
-import './App.css';
-import MainNavigation from './src/Pages/MainNavigation';
+
+import MainContent from './src/Components/Content';
+import TopNavigation from './src/Components/TopNavigation';
 
 function App() {
-  return <MainNavigation />;
+  return <>
+  <TopNavigation /> 
+  <MainContent/></>;
 }
 export default App;
