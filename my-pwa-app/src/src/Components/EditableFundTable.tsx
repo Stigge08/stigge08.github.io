@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Table, Form, Button, Collapse } from 'react-bootstrap';
 import type { interFaceFundData } from './Interfaces/interfaces';
 
 interface EditableFundTableProps {
@@ -8,6 +8,8 @@ interface EditableFundTableProps {
 }
 
 const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfundData }) => {
+  const [open, setOpen] = useState(false);
+
   const handleChange = (index: number, field: keyof interFaceFundData, value: string | number) => {
     setfundData((prevfundData: any[]) =>
       prevfundData.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
@@ -56,6 +58,31 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
 
   return (
     <>
+      <div className="mb-3">
+        <Button
+          variant="info"
+          onClick={() => setOpen(!open)}
+          aria-controls="json-example-collapse"
+          aria-expanded={open}
+        >
+          Show JSON Example
+        </Button>
+        <Collapse in={open}>
+          <div id="json-example-collapse" className="mt-2">
+            <pre>{`[
+  {
+    "date": "2024-06-01",
+    "type": 'holding' | 'buy' | 'sell',
+    "amount": 1000,
+    "quantity": 50,
+    "unitPrice": 20,
+    "note": "Initial investment",
+    "fundName": 'Nordea Global Enhanced Small Cap Fund BP' | 'Nordea Optima' | 'Nordea Global' | ''
+  }
+]`}</pre>
+          </div>
+        </Collapse>
+      </div>
       <Form.Group controlId="jsonFileUpload" className="mb-3">
         <Form.Label>Import JSON File</Form.Label>
         <Form.Control type="file" accept=".json,application/json" onChange={handleFileUpload} />
