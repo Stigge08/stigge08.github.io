@@ -84,7 +84,6 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
         </Collapse>
       </div>
       <Form.Group controlId="jsonFileUpload" className="mb-3">
-        <Form.Label>Import JSON File</Form.Label>
         <Form.Control type="file" accept=".json,application/json" onChange={handleFileUpload} />
       </Form.Group>
       <Table striped bordered hover>
