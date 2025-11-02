@@ -66,13 +66,13 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
                     </Form.Select>
                   ) : col === 'amount' || col === 'quantity' || col === 'unitPrice' ? (
                     <Form.Control
-                      type="number"
-                      value={row[col as keyof interFaceFundData] as number}
+                      type="text"
+                      value={(row[col as keyof interFaceFundData] as number).toLocaleString()}
                       onChange={(e) =>
                         handleChange(
                           index,
                           col as keyof interFaceFundData,
-                          parseFloat(e.target.value),
+                          parseFloat(e.target.value.replace(/,/g, '')) || 0,
                         )
                       }
                     />

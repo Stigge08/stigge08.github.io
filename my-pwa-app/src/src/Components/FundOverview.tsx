@@ -2,50 +2,55 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import type { interFaceFundData } from './Interfaces/interfaces';
 
-export type FundOverviewItem = {
-  fundName: string;
-  totalQuantity: number;
-  currentValue: number;
-};
-
 interface FundOverviewProps {
   fundData: interFaceFundData[];
 }
 
+interface FundTracking {
+  quantity: number;
+  totalCost: number; // total cost of remaining units
+  realizedGain: number;
+}
+
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
-  // calculate overview
-  const overviewMap: Record<string, { quantity: number; totalCost: number; value: number }> = {};
+  // Sort transactions by date
+  const sortedData = [...fundData].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
 
-  fundData.forEach((t) => {
+  const fundMap: Record<string, FundTracking> = {};
+
+  sortedData.forEach((t) => {
     const name = t.fundName;
-    if (!overviewMap[name]) overviewMap[name] = { quantity: 0, totalCost: 0, value: 0 };
+    if (!fundMap[name]) fundMap[name] = { quantity: 0, totalCost: 0, realizedGain: 0 };
 
-    if (t.type === 'holding' || t.type === 'buy') {
-      overviewMap[name].quantity += t.quantity;
-      overviewMap[name].totalCost += t.quantity * t.unitPrice;
-      overviewMap[name].value += t.quantity * t.unitPrice;
+    const fund = fundMap[name];
+
+    if (t.type === 'buy' || t.type === 'holding') {
+      fund.quantity += t.quantity;
+      fund.totalCost += t.quantity * t.unitPrice;
     } else if (t.type === 'sell') {
-      // Calculate average unit price before sell
-      const avgUnitPrice =
-        overviewMap[name].quantity > 0 ? overviewMap[name].value / overviewMap[name].quantity : 0;
-      // Subtract quantity sold
-      overviewMap[name].quantity -= t.quantity;
-      if (overviewMap[name].quantity < 0) overviewMap[name].quantity = 0;
-      // Subtract value based on average unit price * quantity sold
-      overviewMap[name].value -= t.quantity * avgUnitPrice;
-      if (overviewMap[name].value < 0) overviewMap[name].value = 0;
+      if (fund.quantity === 0) {
+        console.warn(`Attempt to sell with zero holdings for ${name}`);
+        return;
+      }
+      const avgCost = fund.totalCost / fund.quantity; // average cost per unit
+      const costOfSoldUnits = avgCost * t.quantity;
+
+      fund.realizedGain += t.quantity * t.unitPrice - costOfSoldUnits; // profit = sale price - cost
+      fund.quantity -= t.quantity;
+      fund.totalCost -= costOfSoldUnits;
     }
   });
 
-  const fundOverview: FundOverviewItem[] = Object.entries(overviewMap).map(
-    ([fundName, { quantity, value }]) => ({
-      fundName,
-      totalQuantity: quantity,
-      currentValue: value,
-    }),
-  );
+  const fundOverview = Object.entries(fundMap).map(([name, f]) => ({
+    fundName: name,
+    totalUnits: f.quantity,
+    currentValue: f.totalCost,
+    realizedGain: f.realizedGain,
+  }));
 
-  const totalValue = fundOverview.reduce((sum, fund) => sum + fund.currentValue, 0);
+  const totalValue = fundOverview.reduce((sum, f) => sum + f.currentValue, 0);
 
   return (
     <div style={{ margin: '2rem 0' }}>
@@ -56,14 +61,26 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             <th>Fund Name</th>
             <th>Total Units</th>
             <th>Current Value (€)</th>
+            <th>Realized Gain (€)</th>
           </tr>
         </thead>
         <tbody>
-          {fundOverview.map((fund) => (
-            <tr key={fund.fundName}>
-              <td>{fund.fundName}</td>
-              <td>{fund.totalQuantity.toFixed(2)}</td>
-              <td>{fund.currentValue.toFixed(2)}</td>
+          {fundOverview.map((f) => (
+            <tr key={f.fundName}>
+              <td>{f.fundName}</td>
+              <td>{f.totalUnits.toFixed(2).toLocaleString()}</td>
+              <td>
+                {f.currentValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </td>
+              <td>
+                {f.realizedGain.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </td>
             </tr>
           ))}
           <tr>
@@ -72,8 +89,16 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData }) => {
             </td>
             <td></td>
             <td>
-              <strong>{totalValue.toFixed(2)}</strong>
+              <td>
+                <strong>
+                  {totalValue.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </strong>
+              </td>
             </td>
+            <td></td>
           </tr>
         </tbody>
       </Table>
