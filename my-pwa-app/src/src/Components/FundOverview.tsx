@@ -11,6 +11,7 @@ interface FundTracking {
   quantity: number; // remaining units
   totalCost: number; // total invested for remaining units
   realizedGain: number; // accumulated gain from sells
+  firstBuyDate?: string;
 }
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 0.3 }) => {
@@ -71,6 +72,9 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
     if (t.type === 'buy') {
       fund.quantity += t.quantity;
       fund.totalCost += t.quantity * t.unitPrice;
+      if (!fund.firstBuyDate) {
+        fund.firstBuyDate = t.date;
+      }
     } else if (t.type === 'sell') {
       if (fund.quantity === 0) {
         console.warn(`Attempt to sell with zero holdings for ${name}`);
@@ -96,6 +100,16 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
   const fundOverview = Object.entries(fundMap).map(([name, f]) => {
     const currentHoldingValue = f.quantity * (lastUnitPriceMap[name] || 0);
     const unrealizedGain = currentHoldingValue - f.totalCost;
+    let holdingPeriod = '';
+    if (f.firstBuyDate) {
+      const now = new Date();
+      const firstBuy = new Date(f.firstBuyDate);
+      const diffInMonths =
+        (now.getFullYear() - firstBuy.getFullYear()) * 12 + (now.getMonth() - firstBuy.getMonth());
+      const years = Math.floor(diffInMonths / 12);
+      const months = diffInMonths % 12;
+      holdingPeriod = `${years}y ${months}m`;
+    }
     return {
       fundName: name,
       remainingUnits: f.quantity,
@@ -104,6 +118,8 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
       taxes: f.realizedGain * taxRateInput,
       currentHoldingValue,
       unrealizedGain,
+      totalGain: f.realizedGain + unrealizedGain,
+      holdingPeriod,
     };
   });
 
@@ -112,6 +128,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
   const totalTaxes = fundOverview.reduce((sum, f) => sum + f.taxes, 0);
   const totalCurrentHoldingValue = fundOverview.reduce((sum, f) => sum + f.currentHoldingValue, 0);
   const totalUnrealizedGain = fundOverview.reduce((sum, f) => sum + f.unrealizedGain, 0);
+  const totalGain = totalRealized + totalUnrealizedGain;
 
   const formatValue = (value: number) =>
     (value * exchangeRate).toLocaleString(undefined, {
@@ -131,6 +148,8 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
       isNumeric: true,
     },
     { key: 'unrealizedGain', label: `Unrealized Gain (${targetCurrency})`, isNumeric: true },
+    { key: 'holdingPeriod', label: 'Holding Period', isNumeric: false },
+    { key: 'totalGain', label: `Total Gain (${targetCurrency})`, isNumeric: true },
   ];
 
   // Sorting state for table columns
@@ -262,6 +281,8 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
                       })}
                     </td>
                   );
+                } else if (col.key === 'holdingPeriod') {
+                  return <td key={col.key}>{f.holdingPeriod}</td>;
                 } else {
                   return (
                     <td key={col.key}>{formatValue(f[col.key as keyof typeof f] as number)}</td>
@@ -278,7 +299,7 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
                     <strong>Total</strong>
                   </td>
                 );
-              } else if (col.key === 'remainingUnits') {
+              } else if (col.key === 'remainingUnits' || col.key === 'holdingPeriod') {
                 return <td key={col.key}></td>;
               } else {
                 let totalValue = 0;
@@ -297,6 +318,9 @@ export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 
                     break;
                   case 'unrealizedGain':
                     totalValue = totalUnrealizedGain;
+                    break;
+                  case 'totalGain':
+                    totalValue = totalGain;
                     break;
                 }
                 return (
