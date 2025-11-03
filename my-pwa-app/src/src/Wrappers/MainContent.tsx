@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import ControlledCarousel from '../Components/Carousel';
 import type { interFaceFundData } from '../Components/Interfaces/interfaces';
 import EditableFundTable from '../Components/EditableFundTable';
 import { FundOverview } from '../Components/FundOverview';
 import { FundData } from '../Components/Data/FundData';
 
-export type ComponentKey = 'Carousel' | 'EditableFundTable';
+export type ComponentKey = 'Carousel' | 'EditableFundTable' | 'FundOverview';
 
 interface MainContentProps {
   activeComponent: ComponentKey; // Controlled from parent
@@ -23,15 +23,9 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
     <Container style={{ paddingTop: '80px', overflowX: 'auto' }}>
       {activeComponent === 'Carousel' && <ControlledCarousel />}
       {activeComponent === 'EditableFundTable' && (
-        <Row>
-          <Col xs={12} md={12} style={{ overflowX: 'auto' }}>
-            <EditableFundTable fundData={sortedFundData} setfundData={setFundData} />
-          </Col>
-          <Col xs={12} md={12} style={{ overflowX: 'auto', marginTop: '1rem' }}>
-            <FundOverview fundData={sortedFundData} />
-          </Col>
-        </Row>
+        <EditableFundTable fundData={sortedFundData} setfundData={setFundData} />
       )}
+      {activeComponent === 'FundOverview' && <FundOverview fundData={sortedFundData} />}
     </Container>
   );
 };

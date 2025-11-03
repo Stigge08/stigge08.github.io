@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Table, Form, Button, Collapse } from 'react-bootstrap';
+import { Table, Form, Button } from 'react-bootstrap';
 import type { interFaceFundData } from './Interfaces/interfaces';
+import JsonExampleModal from './JSONexample';
+import { FaInfoCircle } from 'react-icons/fa';
 
 interface EditableFundTableProps {
   fundData: interFaceFundData[];
@@ -8,7 +10,7 @@ interface EditableFundTableProps {
 }
 
 const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfundData }) => {
-  const [open, setOpen] = useState(false);
+  const [showJsonModal, setShowJsonModal] = useState(false);
 
   const handleChange = (index: number, field: keyof interFaceFundData, value: string | number) => {
     setfundData((prevfundData: any[]) =>
@@ -58,33 +60,20 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
 
   return (
     <>
-      <div className="mb-3">
-        <Button
-          variant="info"
-          onClick={() => setOpen(!open)}
-          aria-controls="json-example-collapse"
-          aria-expanded={open}
-        >
-          Show JSON Example
+      <Form.Group
+        controlId="jsonFileUpload"
+        className="mb-3"
+        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+      >
+        <Form.Control
+          type="file"
+          accept=".json,application/json"
+          onChange={handleFileUpload}
+          style={{ flex: 1 }}
+        />
+        <Button variant="link" onClick={() => setShowJsonModal(true)} style={{ padding: 0 }}>
+          <FaInfoCircle color="gray" size={20} />
         </Button>
-        <Collapse in={open}>
-          <div id="json-example-collapse" className="mt-2">
-            <pre>{`[
-  {
-    "date": "2024-06-01",
-    "type": 'holding' | 'buy' | 'sell',
-    "amount": 1000,
-    "quantity": 50,
-    "unitPrice": 20,
-    "note": "Initial investment",
-    "fundName": 'Nordea Global Enhanced Small Cap Fund BP' | 'Nordea Optima' | 'Nordea Global' | ''
-  }
-]`}</pre>
-          </div>
-        </Collapse>
-      </div>
-      <Form.Group controlId="jsonFileUpload" className="mb-3">
-        <Form.Control type="file" accept=".json,application/json" onChange={handleFileUpload} />
       </Form.Group>
       <Table striped bordered hover>
         <thead>
@@ -169,6 +158,7 @@ const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfund
         </tbody>
       </Table>
       <Button onClick={addRow}>Add Row</Button>
+      <JsonExampleModal show={showJsonModal} onClose={() => setShowJsonModal(false)} />
     </>
   );
 };
