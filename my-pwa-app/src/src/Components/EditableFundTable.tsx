@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import { Table, Form, Button } from 'react-bootstrap';
-import type { interFaceFundData } from './Interfaces/interfaces';
+import type { EditableFundTableProps, interFaceFundData } from './Interfaces/interfaces';
 import JsonExampleModal from './JSONexample';
 import { FaInfoCircle } from 'react-icons/fa';
-
-interface EditableFundTableProps {
-  fundData: interFaceFundData[];
-  setfundData: React.Dispatch<React.SetStateAction<interFaceFundData[]>>;
-}
 
 const EditableFundTable: React.FC<EditableFundTableProps> = ({ fundData, setfundData }) => {
   const [showJsonModal, setShowJsonModal] = useState(false);

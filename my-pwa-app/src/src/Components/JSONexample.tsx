@@ -1,10 +1,6 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-
-interface JsonExampleModalProps {
-  show: boolean;
-  onClose: () => void;
-}
+import type { JsonExampleModalProps } from './Interfaces/interfaces';
 
 const JsonExampleModal: React.FC<JsonExampleModalProps> = ({ show, onClose }) => {
   return (

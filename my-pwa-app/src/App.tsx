@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import MainContent, { type ComponentKey } from './src/Wrappers/MainContent';
+import MainContent from './src/Wrappers/MainContent';
 import TopNavigation from './src/Components/TopNavigation';
+import type { ComponentKey } from './src/Components/Interfaces/interfaces';
 
 function App() {
   const [activeComponent, setActiveComponent] = useState<ComponentKey>('EditableFundTable');

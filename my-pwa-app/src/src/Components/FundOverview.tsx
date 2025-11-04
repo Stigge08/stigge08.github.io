@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
-import type { interFaceFundData } from './Interfaces/interfaces';
-
-interface FundOverviewProps {
-  fundData: interFaceFundData[];
-  taxRate?: number;
-}
-
-interface FundTracking {
-  quantity: number; // remaining units
-  totalCost: number; // total invested for remaining units
-  realizedGain: number; // accumulated gain from sells
-  firstBuyDate?: string;
-}
+import type { FundOverviewProps, FundTracking } from './Interfaces/interfaces';
 
 export const FundOverview: React.FC<FundOverviewProps> = ({ fundData, taxRate = 0.3 }) => {
   const [taxRateInput, setTaxRateInput] = useState(taxRate);

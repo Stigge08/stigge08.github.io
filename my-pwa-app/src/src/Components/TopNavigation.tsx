@@ -1,10 +1,6 @@
 import React from 'react';
 import { Container, Navbar, Nav } from 'react-bootstrap';
-import type { ComponentKey } from '../Wrappers/MainContent';
-
-interface TopNavigationProps {
-  onSelectComponent: (component: ComponentKey) => void;
-}
+import type { TopNavigationProps } from './Interfaces/interfaces';
 
 const TopNavigation: React.FC<TopNavigationProps> = ({ onSelectComponent }) => {
   return (
