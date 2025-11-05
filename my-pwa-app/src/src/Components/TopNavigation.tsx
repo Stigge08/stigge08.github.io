@@ -11,6 +11,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ onSelectComponent }) => {
         <Nav className="me-auto">
           <Nav.Link onClick={() => onSelectComponent('EditableFundTable')}>EditFunds</Nav.Link>
           <Nav.Link onClick={() => onSelectComponent('FundOverview')}>FundOverview</Nav.Link>
+          <Nav.Link onClick={() => onSelectComponent('LoanCalculation')}>LoanCalculation</Nav.Link>
         </Nav>
       </Container>
     </Navbar>

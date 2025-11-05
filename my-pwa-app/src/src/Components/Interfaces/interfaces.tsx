@@ -1,5 +1,5 @@
 // Types
-export type ComponentKey = 'Carousel' | 'EditableFundTable' | 'FundOverview';
+export type ComponentKey = 'Carousel' | 'EditableFundTable' | 'FundOverview' | 'LoanCalculation';
 
 // ComponentProps
 export interface TopNavigationProps {
@@ -39,13 +39,4 @@ export interface interFaceFundData {
   unitPrice: number; // price per unit
   note?: string; // optional description
   fundName: 'Nordea Global Enhanced Small Cap Fund BP' | 'Nordea Optima' | 'Nordea Global' | '';
-}
-
-export interface CarouselItemData {
-  id: number; // numeric id for your data
-  src: string; // image URL
-  alt?: string; // alt text
-  title?: string; // caption headline
-  description?: string; // caption paragraph
-  link?: string; // optional "learn more" link
 }
