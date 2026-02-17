@@ -5,6 +5,7 @@ import EditableFundTable from '../Components/EditableFundTable';
 import { FundOverview } from '../Components/FundOverview';
 import { FundData } from '../Components/Data/FundData';
 import LoanCalculation from '../Components/LoanCalculation';
+import FundGraph from '../Components/FundGraph';
 
 const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
   const [fundData, setFundData] = useState<interFaceFundData[]>(FundData);
@@ -14,12 +15,13 @@ const MainContent: React.FC<MainContentProps> = ({ activeComponent }) => {
   );
 
   return (
-    <Container style={{ paddingTop: '80px', overflowX: 'auto' }}>
+    <Container style={{ paddingTop: '80px' }}>
       {activeComponent === 'LoanCalculation' && <LoanCalculation />}
       {activeComponent === 'EditableFundTable' && (
         <EditableFundTable fundData={sortedFundData} setfundData={setFundData} />
       )}
       {activeComponent === 'FundOverview' && <FundOverview fundData={sortedFundData} />}
+      {activeComponent === ('FundGraph' as const) && <FundGraph fundData={sortedFundData} />}
     </Container>
   );
 };

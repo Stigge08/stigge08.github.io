@@ -1,5 +1,10 @@
 // Types
-export type ComponentKey = 'Carousel' | 'EditableFundTable' | 'FundOverview' | 'LoanCalculation';
+export type ComponentKey =
+  | 'Carousel'
+  | 'EditableFundTable'
+  | 'FundOverview'
+  | 'FundGraph'
+  | 'LoanCalculation';
 
 // ComponentProps
 export interface TopNavigationProps {
